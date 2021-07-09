@@ -158,14 +158,15 @@ const app = {
         
         // khi tiến độ bài hát thay đổi
         audio.ontimeupdate = function() { // time of song
-            if(audio.duration){ // duration of song
+            if(audio.duration ){ // duration of song
                 const progressPercent = Math.floor(audio.currentTime / audio.duration*100); // percent when play
                 progress.value = progressPercent; // set value in class progress = precent progress to show
+                // console.log(progressPercent);    
             } 
         }
 
         // Xử lí khi tua song
-        progress.onchange = function(e){ // when have change
+        progress.oninput = function(e){ // when have change in thẻ input
             const seekTime = audio.duration * e.target.value/100; 
             audio.currentTime = seekTime; 
         }
@@ -208,8 +209,8 @@ const app = {
             }else{
                 nextBtn.click(); // else click nextBtn
             }
+            
         }
-
         // Xử lý phát lại 1 song
         repeatBtn.onclick = function(){
             app.isRepeat = !app.isRepeat;// đảo giá trị của isRepeat
@@ -241,31 +242,36 @@ const app = {
         heading.textContent = this.currentSong.name; // sửa thành tên song
         cdThumb.style.backgroundImage = `url('${this.currentSong.image}')`; // sửa backgroundImage thành ảnh của bài hát
         audio.src = this.currentSong.path; // thay đổi src của audio
+        
     },
     scrollToActiveSong : function() { // cuộn màn hình đến vị trị bài hiện tại
         setTimeout(() => {
             $('.song.active').scrollIntoView({
                 behavior: 'smooth', // option của scrollIntoView
-                block: 'nearest',// option của scrollIntoView
+                block: 'end',// option của scrollIntoView
             });
-        },300)
+        },100)
     },
     loadConfig : function() {
         this.isRandom = this.config.isRandom; // load config cho isRandom
         this.isRepeat = this.config.isRepeat;// load config cho isRepeat
+        this.currentIndex = this.config.currentIndex;
     },
     nextSong: function() {
         this.currentIndex++; // tăng index lên 1
         if(this.currentIndex >= this.songs.length ){ // nếu index vượt quá số bài hát
             this.currentIndex = 0; // index quay về 0
         }
+        app.setConfig('currentIndex', app.currentIndex); // set current index in localStorage 
         this.loadCurrentSong(); // load bài hát
+        
     },
     prevSong: function() {
         this.currentIndex--; // giảm index 1
         if(this.currentIndex < 0 ){ // nếu index bé hơn 0
             this.currentIndex = this.songs.length - 1; // index = index có giá trị lớn nhất
         }
+        app.setConfig('currentIndex', app.currentIndex); // set current index in localStorage 
         this.loadCurrentSong(); // load bài hát
     },
     playRandomSong: function() {
@@ -287,6 +293,7 @@ const app = {
         console.log(this.listRandom);
         console.log(this.songs.length);
         
+        app.setConfig('currentIndex', app.currentIndex); // set current index in localStorage 
         this.loadCurrentSong();// load bài hát
     },
 
@@ -294,7 +301,7 @@ const app = {
         
         // Gán cấu hình từ config vào object app
         this.loadConfig();
-
+       
         // định nghĩa các thuộc tính cho object
         this.defineProperties();
 
